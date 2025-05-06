@@ -1,0 +1,37 @@
+# Go specific ignores
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.prof
+*.trace
+*.log
+
+# Go workspace files
+go.work
+
+# Go module files (if you want to ignore them)
+# go.mod
+# go.sum
+
+# Build and binary directories
+bin/
+dist/
+build/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Project specific ignores
+README.md
+checkpoint.md 
