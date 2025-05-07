@@ -200,4 +200,5 @@ func decodeDict(r *bufio.Reader) (map[string]interface{}, error) {
 
 		dict[keyStr] = value
 	}
+
 }
