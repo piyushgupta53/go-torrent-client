@@ -133,7 +133,6 @@ func Parse(data interface{}) (*TorrentFile, error) {
 	}
 
 	// Parse into fields
-
 	if err := parseInfoDict(infoDict, &t.Info); err != nil {
 		return nil, err
 	}
