@@ -1,4 +1,3 @@
-// internal/bencode/decoder_test.go
 package bencode
 
 import (

@@ -1,4 +1,3 @@
-// cmd/go-torrent/main.go
 package main
 
 import (
@@ -7,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/piyushgupta53/go-torrent/internal/torrent"
+	"github.com/piyushgupta53/go-torrent/internal/tracker"
 )
 
 func main() {
@@ -24,24 +24,48 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Display information about the torrent
+	// Display torrent info
 	fmt.Printf("Torrent: %s\n", filepath.Base(torrentPath))
 	fmt.Printf("Announce URL: %s\n", torrentFile.Announce)
 
 	if torrentFile.Info.IsDirectory {
 		fmt.Printf("Content: Directory (%s) with %d files\n", torrentFile.Info.Name, len(torrentFile.Info.Files))
-		fmt.Printf("Total Size: %d bytes\n", torrentFile.TotalLength())
-
-		for i, file := range torrentFile.Info.Files {
-			fmt.Printf("  File %d: %s (%d bytes)\n", i+1, filepath.Join(file.Path...), file.Length)
-		}
 	} else {
 		fmt.Printf("Content: Single file (%s)\n", torrentFile.Info.Name)
-		fmt.Printf("Size: %d bytes\n", torrentFile.Info.Length)
 	}
 
+	fmt.Printf("Total Size: %d bytes\n", torrentFile.TotalLength())
 	fmt.Printf("Pieces: %d (each %d bytes)\n", torrentFile.NumPieces(), torrentFile.Info.PieceLength)
 	fmt.Printf("Info Hash: %x\n", torrentFile.InfoHash)
 
-	fmt.Println("\nTorrent parsed successfully. We'll implement downloading in the next stage.")
+	// Generate peer ID
+	peerID, err := tracker.GeneratePeerID()
+	if err != nil {
+		fmt.Printf("Error generating peer ID: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Our Peer ID: %x\n", peerID)
+
+	// Create tracker client
+	// Using port 6881 as default BitTorrent port
+	trackerClient := tracker.NewClient(peerID, 6881)
+
+	// Discover peers
+	fmt.Println("\nDiscovering peers...")
+	peers, err := trackerClient.DiscoverPeers(torrentFile)
+	if err != nil {
+		fmt.Printf("Error discovering peers: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Found %d peers:\n", len(peers))
+	for i, peer := range peers {
+		fmt.Printf("  Peer %d: %s\n", i+1, peer.String())
+		if i >= 10 { // Limit output to first 10 peers
+			fmt.Printf("  ... and %d more\n", len(peers)-10)
+			break
+		}
+	}
+
+	fmt.Println("\nPeer discovery successful! Next step would be peer handshake and communication.")
 }
