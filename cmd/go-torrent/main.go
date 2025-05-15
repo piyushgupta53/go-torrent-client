@@ -1,10 +1,13 @@
+// cmd/go-torrent/main.go
 package main
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/piyushgupta53/go-torrent/internal/peer"
 	"github.com/piyushgupta53/go-torrent/internal/torrent"
 	"github.com/piyushgupta53/go-torrent/internal/tracker"
 )
@@ -27,13 +30,6 @@ func main() {
 	// Display torrent info
 	fmt.Printf("Torrent: %s\n", filepath.Base(torrentPath))
 	fmt.Printf("Announce URL: %s\n", torrentFile.Announce)
-
-	if torrentFile.Info.IsDirectory {
-		fmt.Printf("Content: Directory (%s) with %d files\n", torrentFile.Info.Name, len(torrentFile.Info.Files))
-	} else {
-		fmt.Printf("Content: Single file (%s)\n", torrentFile.Info.Name)
-	}
-
 	fmt.Printf("Total Size: %d bytes\n", torrentFile.TotalLength())
 	fmt.Printf("Pieces: %d (each %d bytes)\n", torrentFile.NumPieces(), torrentFile.Info.PieceLength)
 	fmt.Printf("Info Hash: %x\n", torrentFile.InfoHash)
@@ -46,11 +42,9 @@ func main() {
 	}
 	fmt.Printf("Our Peer ID: %x\n", peerID)
 
-	// Create tracker client
-	// Using port 6881 as default BitTorrent port
+	// Create tracker client and discover peers
 	trackerClient := tracker.NewClient(peerID, 6881)
 
-	// Discover peers
 	fmt.Println("\nDiscovering peers...")
 	peers, err := trackerClient.DiscoverPeers(torrentFile)
 	if err != nil {
@@ -58,14 +52,61 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Found %d peers:\n", len(peers))
-	for i, peer := range peers {
-		fmt.Printf("  Peer %d: %s\n", i+1, peer.String())
-		if i >= 10 { // Limit output to first 10 peers
-			fmt.Printf("  ... and %d more\n", len(peers)-10)
-			break
+	fmt.Printf("Found %d peers\n", len(peers))
+
+	// Create peer connection pool
+	peerPool := peer.NewPool(torrentFile.InfoHash, peerID)
+
+	// Connect to peers
+	fmt.Println("\nConnecting to peers...")
+	peerPool.Connect(peers, 10) // Try to connect to up to 10 peers
+
+	// Wait a bit for connections to establish
+	time.Sleep(5 * time.Second)
+
+	connectedPeers := peerPool.GetConnectedPeers()
+	fmt.Printf("\nConnected to %d peers\n", connectedPeers)
+
+	// If we have connections, test sending some messages
+	if connectedPeers > 0 {
+		fmt.Println("\nTesting peer communication...")
+
+		// Send interested message to all connected peers
+		for addr, client := range peerPool.GetPeers() {
+			fmt.Printf("Sending interested to %s...\n", addr)
+			if err := client.SendInterested(); err != nil {
+				fmt.Printf("Error sending interested to %s: %v\n", addr, err)
+			}
+
+			// Try to read a message
+			go func(addr string, client *peer.Client) {
+				msg, err := client.Read()
+				if err != nil {
+					fmt.Printf("Error reading from %s: %v\n", addr, err)
+					return
+				}
+
+				if msg == nil {
+					fmt.Printf("Received keep-alive from %s\n", addr)
+				} else {
+					fmt.Printf("Received %s from %s\n", msg.String(), addr)
+
+					// Handle unchoke message
+					if msg.ID == peer.MsgUnchoke {
+						client.Choked = false
+						fmt.Printf("Peer %s unchoked us!\n", addr)
+					}
+				}
+			}(addr, client)
 		}
+
+		// Wait for responses
+		time.Sleep(10 * time.Second)
 	}
 
-	fmt.Println("\nPeer discovery successful! Next step would be peer handshake and communication.")
+	// Cleanup
+	fmt.Println("\nClosing connections...")
+	peerPool.CloseAll()
+
+	fmt.Println("Peer communication test complete. Next step would be downloading pieces.")
 }
