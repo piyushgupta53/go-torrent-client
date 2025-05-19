@@ -72,15 +72,15 @@ func main() {
 		fmt.Println("\nTesting peer communication...")
 
 		// Send interested message to all connected peers
-		for addr, client := range peerPool.GetPeers() {
+		for addr, session := range peerPool.GetPeers() {
 			fmt.Printf("Sending interested to %s...\n", addr)
-			if err := client.SendInterested(); err != nil {
+			if err := session.SendInterested(); err != nil {
 				fmt.Printf("Error sending interested to %s: %v\n", addr, err)
 			}
 
 			// Try to read a message
-			go func(addr string, client *peer.Client) {
-				msg, err := client.Read()
+			go func(addr string, session *peer.Session) {
+				msg, err := session.Read()
 				if err != nil {
 					fmt.Printf("Error reading from %s: %v\n", addr, err)
 					return
@@ -93,11 +93,10 @@ func main() {
 
 					// Handle unchoke message
 					if msg.ID == peer.MsgUnchoke {
-						client.Choked = false
 						fmt.Printf("Peer %s unchoked us!\n", addr)
 					}
 				}
-			}(addr, client)
+			}(addr, session)
 		}
 
 		// Wait for responses
