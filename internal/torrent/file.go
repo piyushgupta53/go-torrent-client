@@ -6,30 +6,30 @@ import (
 )
 
 type TorrentFile struct {
-	Announce     string     // URL of the tracker
-	AnnouceList  [][]string // List of backup trackers
-	CreationDate time.Time
-	Comment      string
-	CreatedBy    string
-	Encoding     string
-	Info         InfoDict
-	InfoHash     [20]byte
-	PiecesHash   [][20]byte
+	Announce     string     // URL of the primary tracker server
+	AnnouceList  [][]string // List of backup tracker servers organized in tiers
+	CreationDate time.Time  // When the torrent file was created
+	Comment      string     // Optional comment about the torrent
+	CreatedBy    string     // Name of the program that created the torrent
+	Encoding     string     // Character encoding used for strings in the torrent
+	Info         InfoDict   // Contains the core torrent metadata
+	InfoHash     [20]byte   // SHA-1 hash of the info dictionary
+	PiecesHash   [][20]byte // Array of SHA-1 hashes for each piece
 }
 
 type InfoDict struct {
-	PieceLength int64
-	Pieces      string
-	Private     bool
-	Name        string
-	Length      int64
-	Files       []FileDict
-	IsDirectory bool
+	PieceLength int64      // Size of each piece in bytes
+	Pieces      string     // Concatenated SHA-1 hashes of all pieces
+	Private     bool       // Whether the torrent is private (no DHT/PEX)
+	Name        string     // Name of the file/directory
+	Length      int64      // Total length of the file (single file torrents)
+	Files       []FileDict // List of files (multi-file torrents)
+	IsDirectory bool       // Whether this is a multi-file torrent
 }
 
 type FileDict struct {
-	Length int64
-	Path   []string
+	Length int64    // Size of the file in bytes
+	Path   []string // Path components to the file
 }
 
 // TotalLength returns the total length of all files in the torrent
