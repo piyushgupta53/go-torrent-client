@@ -145,3 +145,15 @@ func (p *Pool) GetPeers() map[string]*Session {
 	defer p.mu.Unlock()
 	return p.Sessions
 }
+
+// BroadcastHave sends a have message to all peers
+func (p *Pool) BroadcastHave(pieceIndex int) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	for _, session := range p.Sessions {
+		if err := session.client.SendHave(pieceIndex); err != nil {
+			fmt.Printf("Failed to send have message to %s: %v\n", session.GetAddr(), err)
+		}
+	}
+}

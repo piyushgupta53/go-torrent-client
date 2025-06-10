@@ -97,8 +97,8 @@ func (pm *PieceManager) PickPiece(peersBitfield []peer.Bitfield, strategy string
 		})
 	case "random":
 		// Shuffle the candidates
-		rand.Seed(time.Now().UnixNano())
-		rand.Shuffle(len(candidates), func(i, j int) {
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		r.Shuffle(len(candidates), func(i, j int) {
 			candidates[i], candidates[j] = candidates[j], candidates[i]
 		})
 	default:

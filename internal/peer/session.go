@@ -111,3 +111,8 @@ func (s *Session) SendInterested() error {
 func (s *Session) Read() (*Message, error) {
 	return s.client.Read()
 }
+
+// GetAddr returns the peer's address
+func (s *Session) GetAddr() string {
+	return s.addr
+}

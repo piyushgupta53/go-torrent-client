@@ -32,6 +32,11 @@ func NewFileStorage(torrentFile *torrent.TorrentFile, basepath string) (*FileSto
 		return nil, err
 	}
 
+	// Open all files for writing
+	if err := fs.openFiles(); err != nil {
+		return nil, err
+	}
+
 	return fs, nil
 }
 
