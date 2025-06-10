@@ -32,6 +32,3 @@ build/
 .DS_Store
 Thumbs.db
 
-# Project specific ignores
-README.md
-checkpoint.md 
