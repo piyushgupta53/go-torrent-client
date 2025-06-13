@@ -83,7 +83,7 @@ func (h *MessageHandler) handleMessage(msg *Message) error {
 
 		// Update our pieces map
 		h.mu.Lock()
-		for i := 0; i < len(msg.Payload)*8; i++ {
+		for i := range len(msg.Payload) * 8 {
 			if h.client.Bitfield.HasPiece(i) {
 				h.pieces[i] = true
 			}

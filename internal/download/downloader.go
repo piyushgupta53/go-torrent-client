@@ -228,7 +228,7 @@ func (dm *DownloadManager) managePieceDownloads() {
 	for _, session := range unchokedSessions {
 		// Create a bitfield based on what pieces the peer has
 		bf := make(peer.Bitfield, (dm.Torrent.NumPieces()+7)/8)
-		for i := 0; i < dm.Torrent.NumPieces(); i++ {
+		for i := range dm.Torrent.NumPieces() {
 			if session.HasPiece(i) {
 				bf.SetPiece(i)
 			}

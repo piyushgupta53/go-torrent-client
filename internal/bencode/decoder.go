@@ -16,13 +16,13 @@ var (
 	ErrStringLength   = errors.New("invalid string length")
 )
 
-func Decode(r io.Reader) (interface{}, error) {
+func Decode(r io.Reader) (any, error) {
 	br := bufio.NewReader(r)
 
 	return decodeNext(br)
 }
 
-func decodeNext(r *bufio.Reader) (interface{}, error) {
+func decodeNext(r *bufio.Reader) (any, error) {
 	// peek the first byte to determine the type
 	b, err := r.Peek(1)
 
@@ -117,14 +117,14 @@ func decodeInteger(r *bufio.Reader) (int64, error) {
 	num, err := strconv.ParseInt(numStr, 10, 64)
 
 	if err != nil {
-		return 0, fmt.Errorf("invalid interger: %w", err)
+		return 0, fmt.Errorf("invalid integer: %w", err)
 	}
 
 	return num, nil
 }
 
 // Example: l4:spam4:eggse represents the list ["spam", "eggs"]
-func decodeList(r *bufio.Reader) ([]interface{}, error) {
+func decodeList(r *bufio.Reader) ([]any, error) {
 	// Skip the leading 'l'
 	_, err := r.ReadByte()
 
@@ -132,7 +132,7 @@ func decodeList(r *bufio.Reader) ([]interface{}, error) {
 		return nil, err
 	}
 
-	var list []interface{}
+	var list []any
 
 	// Keep decoding until we hit 'e'
 	for {
@@ -160,14 +160,14 @@ func decodeList(r *bufio.Reader) ([]interface{}, error) {
 }
 
 // Example: d3:cow3:moo4:spam4:eggse represents the map {"cow": "moo", "spam": "eggs"}
-func decodeDict(r *bufio.Reader) (map[string]interface{}, error) {
+func decodeDict(r *bufio.Reader) (map[string]any, error) {
 	// Skip the leading 'd'
 	_, err := r.ReadByte()
 	if err != nil {
 		return nil, err
 	}
 
-	dict := make(map[string]interface{})
+	dict := make(map[string]any)
 
 	for {
 		// Peek to see if we've reached the end 'e'

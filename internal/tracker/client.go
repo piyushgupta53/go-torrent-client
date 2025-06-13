@@ -3,7 +3,6 @@ package tracker
 import (
 	"fmt"
 	"math/rand"
-	"time"
 
 	"github.com/piyushgupta53/go-torrent/internal/torrent"
 )
@@ -29,7 +28,6 @@ func (c *Client) DiscoverPeers(torrent *torrent.TorrentFile) ([]Peer, error) {
 	}
 
 	// Shuffle the peers for better distribution
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(response.Peers), func(i, j int) {
 		response.Peers[i], response.Peers[j] = response.Peers[j], response.Peers[i]
 	})

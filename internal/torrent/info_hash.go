@@ -9,7 +9,7 @@ import (
 )
 
 // calculateHashInfo computes the SHA-1 hash of the bencoded info dictionary
-func calculateHashInfo(info map[string]interface{}) ([20]byte, error) {
+func calculateHashInfo(info map[string]any) ([20]byte, error) {
 	var buf bytes.Buffer
 
 	// Re-encode the info dictionary to get its exact bencoded representation
