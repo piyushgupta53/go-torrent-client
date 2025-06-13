@@ -12,12 +12,12 @@ import (
 
 func TestParse(t *testing.T) {
 	// Create a mock torrent file bencode data
-	singleFileData := map[string]interface{}{
+	singleFileData := map[string]any{
 		"announce":      "http://tracker.example.com/announce",
 		"creation date": int64(1617235200), // April 1, 2021
 		"comment":       "Test torrent",
 		"created by":    "go-torrent",
-		"info": map[string]interface{}{
+		"info": map[string]any{
 			"name":         "test.txt",
 			"piece length": int64(16384),
 			"pieces":       string(make([]byte, 60)), // 3 pieces (20 bytes each)
@@ -26,27 +26,27 @@ func TestParse(t *testing.T) {
 		},
 	}
 
-	multiFileData := map[string]interface{}{
+	multiFileData := map[string]any{
 		"announce": "http://tracker.example.com/announce",
-		"announce-list": []interface{}{
-			[]interface{}{"http://tracker1.example.com/announce", "http://tracker2.example.com/announce"},
-			[]interface{}{"http://tracker3.example.com/announce"},
+		"announce-list": []any{
+			[]any{"http://tracker1.example.com/announce", "http://tracker2.example.com/announce"},
+			[]any{"http://tracker3.example.com/announce"},
 		},
 		"creation date": int64(1617235200), // April 1, 2021
 		"comment":       "Test torrent",
 		"created by":    "go-torrent",
-		"info": map[string]interface{}{
+		"info": map[string]any{
 			"name":         "test_dir",
 			"piece length": int64(16384),
 			"pieces":       string(make([]byte, 60)), // 3 pieces (20 bytes each)
-			"files": []interface{}{
-				map[string]interface{}{
+			"files": []any{
+				map[string]any{
 					"length": int64(12345),
-					"path":   []interface{}{"file1.txt"},
+					"path":   []any{"file1.txt"},
 				},
-				map[string]interface{}{
+				map[string]any{
 					"length": int64(67890),
-					"path":   []interface{}{"subdir", "file2.txt"},
+					"path":   []any{"subdir", "file2.txt"},
 				},
 			},
 			"private": int64(1),
@@ -55,7 +55,7 @@ func TestParse(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		data     map[string]interface{}
+		data     map[string]any
 		expected *TorrentFile
 		wantErr  bool
 	}{
@@ -148,7 +148,7 @@ func TestParse(t *testing.T) {
 
 func TestCalculateInfoHash(t *testing.T) {
 	// Create a simple info dictionary
-	info := map[string]interface{}{
+	info := map[string]any{
 		"name":         "test.txt",
 		"piece length": int64(16384),
 		"pieces":       "abcdefghijklmnopqrst", // 20 bytes

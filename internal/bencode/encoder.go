@@ -7,20 +7,20 @@ import (
 )
 
 // Encode writes a bencode representation of v to the provided writer
-func Encode(w io.Writer, v interface{}) error {
+func Encode(w io.Writer, v any) error {
 	return encodeValue(w, v)
 }
 
 // encodeValue writes the bencode representation of a value
-func encodeValue(w io.Writer, v interface{}) error {
+func encodeValue(w io.Writer, v any) error {
 	switch val := v.(type) {
 	case string:
 		return encodeString(w, val)
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return encodeInteger(w, val)
-	case []interface{}:
+	case []any:
 		return encodeList(w, val)
-	case map[string]interface{}:
+	case map[string]any:
 		return encodeDict(w, val)
 	default:
 		return fmt.Errorf("cannont encode type %T", v)
@@ -33,12 +33,12 @@ func encodeString(w io.Writer, s string) error {
 	return err
 }
 
-func encodeInteger(w io.Writer, v interface{}) error {
+func encodeInteger(w io.Writer, v any) error {
 	_, err := fmt.Fprintf(w, "i%de", v)
 	return err
 }
 
-func encodeList(w io.Writer, list []interface{}) error {
+func encodeList(w io.Writer, list []any) error {
 	if _, err := w.Write([]byte("l")); err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func encodeList(w io.Writer, list []interface{}) error {
 }
 
 // encodeDict writes a bencoded dictionary
-func encodeDict(w io.Writer, dict map[string]interface{}) error {
+func encodeDict(w io.Writer, dict map[string]any) error {
 	if _, err := w.Write([]byte("d")); err != nil {
 		return err
 	}

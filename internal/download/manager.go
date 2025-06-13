@@ -26,14 +26,14 @@ type PieceManager struct {
 func NewPieceManager(torrentFile *torrent.TorrentFile) *PieceManager {
 	// Create all pieces
 	pieces := make([]*Piece, torrentFile.NumPieces())
-	for i := 0; i < torrentFile.NumPieces(); i++ {
+	for i := range torrentFile.NumPieces() {
 		pieceSize := torrentFile.PieceSize(i)
 		pieces[i] = NewPiece(i, torrentFile.PiecesHash[i], int(pieceSize))
 	}
 
 	// Initialize maps
 	missing := make(map[int]bool)
-	for i := 0; i < torrentFile.NumPieces(); i++ {
+	for i := range torrentFile.NumPieces() {
 		missing[i] = true
 	}
 
@@ -68,8 +68,8 @@ func (pm *PieceManager) PickPiece(peersBitfield []peer.Bitfield, strategy string
 	// Get pieces the peers have
 	available := make(map[int]int) // piece index -> count of peers who have it
 	for _, bitfield := range peersBitfield {
-		for i := 0; i < len(pm.Pieces); i++ {
 
+		for i := range len(pm.Pieces) {
 			if bitfield.HasPiece(i) && (pm.Missing[i] || pm.InProgress[i]) {
 				available[i]++
 			}

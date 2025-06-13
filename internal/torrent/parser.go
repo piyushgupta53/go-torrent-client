@@ -36,8 +36,8 @@ func ParseFromFile(path string) (*TorrentFile, error) {
 }
 
 // Parse converts the decoded bencode data into a TorrentFile struct
-func Parse(data interface{}) (*TorrentFile, error) {
-	dict, ok := data.(map[string]interface{})
+func Parse(data any) (*TorrentFile, error) {
+	dict, ok := data.(map[string]any)
 	if !ok {
 		return nil, ErrInvalidTorrentFile
 	}
@@ -60,14 +60,14 @@ func Parse(data interface{}) (*TorrentFile, error) {
 
 	// Parse annouce-list
 	if announceListVal, ok := dict["annouce-list"]; ok {
-		announceList, ok := announceListVal.([]interface{})
+		announceList, ok := announceListVal.([]any)
 		if !ok {
 			return nil, fmt.Errorf("%w: annouce-list is not a list", ErrInvalidTorrentFile)
 		}
 
 		t.AnnouceList = make([][]string, len(announceList))
 		for i, tier := range announceList {
-			tierList, ok := tier.([]interface{})
+			tierList, ok := tier.([]any)
 			if !ok {
 				return nil, fmt.Errorf("%w: annouce-list tier is not a list", ErrInvalidInfoDict)
 			}
@@ -87,7 +87,7 @@ func Parse(data interface{}) (*TorrentFile, error) {
 	if creationDateVal, ok := dict["creation date"]; ok {
 		creationDate, ok := creationDateVal.(int64)
 		if !ok {
-			return nil, fmt.Errorf("%w: creation date is not an interger", ErrInvalidTorrentFile)
+			return nil, fmt.Errorf("%w: creation date is not an integer", ErrInvalidTorrentFile)
 		}
 
 		t.CreationDate = time.Unix(creationDate, 0)
@@ -127,7 +127,7 @@ func Parse(data interface{}) (*TorrentFile, error) {
 		return nil, fmt.Errorf("%w: missing info dictionary", ErrInvalidTorrentFile)
 	}
 
-	infoDict, ok := infoVal.(map[string]interface{})
+	infoDict, ok := infoVal.(map[string]any)
 	if !ok {
 		return nil, fmt.Errorf("%w: info is not a dictionary", ErrInvalidTorrentFile)
 	}
@@ -156,7 +156,7 @@ func Parse(data interface{}) (*TorrentFile, error) {
 }
 
 // parseInfoDict parses the info dictionary
-func parseInfoDict(info map[string]interface{}, infoDict *InfoDict) error {
+func parseInfoDict(info map[string]any, infoDict *InfoDict) error {
 	// parse piece length
 	pieceLengthVal, ok := info["piece length"]
 	if !ok {
@@ -217,7 +217,7 @@ func parseInfoDict(info map[string]interface{}, infoDict *InfoDict) error {
 		infoDict.IsDirectory = false
 	} else if filesVal, ok := info["files"]; ok {
 		// Multi-file mode
-		files, ok := filesVal.([]interface{})
+		files, ok := filesVal.([]any)
 		if !ok {
 			return fmt.Errorf("%w: files is not a list", ErrInvalidInfoDict)
 		}
@@ -225,7 +225,7 @@ func parseInfoDict(info map[string]interface{}, infoDict *InfoDict) error {
 		infoDict.Files = make([]FileDict, len(files))
 
 		for i, fileVal := range files {
-			fileDict, ok := fileVal.(map[string]interface{})
+			fileDict, ok := fileVal.(map[string]any)
 			if !ok {
 				return fmt.Errorf("%w: file is not a dictionary", ErrInvalidInfoDict)
 			}
@@ -249,7 +249,7 @@ func parseInfoDict(info map[string]interface{}, infoDict *InfoDict) error {
 				return fmt.Errorf("%w: path is missing", ErrInvalidInfoDict)
 			}
 
-			pathList, ok := pathVal.([]interface{})
+			pathList, ok := pathVal.([]any)
 			if !ok {
 				return fmt.Errorf("%w: path is not a list", ErrInvalidInfoDict)
 			}
@@ -277,7 +277,7 @@ func parsePieces(pieces string) ([][20]byte, error) {
 	numPieces := len(pieces) / 20
 	hashes := make([][20]byte, numPieces)
 
-	for i := 0; i < numPieces; i++ {
+	for i := range numPieces {
 		copy(hashes[i][:], pieces[i*20:(i+1)*20])
 	}
 

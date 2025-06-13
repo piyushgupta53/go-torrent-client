@@ -73,16 +73,16 @@ func TestDecodeInteger(t *testing.T) {
 func TestDecodeList(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected []interface{}
+		expected []any
 		wantErr  bool
 	}{
-		{"le", []interface{}{}, false},
-		{"l4:spame", []interface{}{"spam"}, false},
-		{"l4:spam4:eggse", []interface{}{"spam", "eggs"}, false},
-		{"li3ei4ee", []interface{}{int64(3), int64(4)}, false},
-		{"l4:spami3ee", []interface{}{"spam", int64(3)}, false},
+		{"le", []any{}, false},
+		{"l4:spame", []any{"spam"}, false},
+		{"l4:spam4:eggse", []any{"spam", "eggs"}, false},
+		{"li3ei4ee", []any{int64(3), int64(4)}, false},
+		{"l4:spami3ee", []any{"spam", int64(3)}, false},
 		// Nested list
-		{"ll4:spamee", []interface{}{[]interface{}{"spam"}}, false},
+		{"ll4:spamee", []any{[]any{"spam"}}, false},
 		// Error cases
 		{"l4:spam", nil, true}, // No end marker
 	}
@@ -105,16 +105,16 @@ func TestDecodeList(t *testing.T) {
 func TestDecodeDict(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected map[string]interface{}
+		expected map[string]any
 		wantErr  bool
 	}{
-		{"de", map[string]interface{}{}, false},
-		{"d3:cow3:mooe", map[string]interface{}{"cow": "moo"}, false},
-		{"d4:spam4:eggs3:cowi3ee", map[string]interface{}{"spam": "eggs", "cow": int64(3)}, false},
+		{"de", map[string]any{}, false},
+		{"d3:cow3:mooe", map[string]any{"cow": "moo"}, false},
+		{"d4:spam4:eggs3:cowi3ee", map[string]any{"spam": "eggs", "cow": int64(3)}, false},
 		// Nested dict
-		{"d4:dictd3:cow3:mooee", map[string]interface{}{"dict": map[string]interface{}{"cow": "moo"}}, false},
+		{"d4:dictd3:cow3:mooee", map[string]any{"dict": map[string]any{"cow": "moo"}}, false},
 		// Dict with list
-		{"d4:listl4:spam4:eggsee", map[string]interface{}{"list": []interface{}{"spam", "eggs"}}, false},
+		{"d4:listl4:spam4:eggsee", map[string]any{"list": []any{"spam", "eggs"}}, false},
 		// Error cases
 		{"d4:spam", nil, true}, // No end marker
 	}
@@ -138,9 +138,9 @@ func TestComplex(t *testing.T) {
 	// Test a typical torrent file structure
 	input := "d8:announce35:http://tracker.example.com/announce4:infod6:lengthi12345e4:name8:test.txt12:piece lengthi16384e6:pieces20:abcdefghijklmnopqrstee"
 
-	expected := map[string]interface{}{
+	expected := map[string]any{
 		"announce": "http://tracker.example.com/announce",
-		"info": map[string]interface{}{
+		"info": map[string]any{
 			"length":       int64(12345),
 			"name":         "test.txt",
 			"piece length": int64(16384),

@@ -75,7 +75,7 @@ func parseAnnounceResponse(data []byte) (*AnnounceResponse, error) {
 		return nil, fmt.Errorf("failed to decode tracker response: %w", err)
 	}
 
-	dict, ok := decoded.(map[string]interface{})
+	dict, ok := decoded.(map[string]any)
 	if !ok {
 		return nil, fmt.Errorf("tracker response is not a dictionary")
 	}
@@ -121,7 +121,7 @@ func parseAnnounceResponse(data []byte) (*AnnounceResponse, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse compact peers: %w", err)
 			}
-		case []interface{}:
+		case []any:
 			// Non-compact format
 			response.Peers, err = parseNonCompactPeers(peers)
 			if err != nil {
@@ -145,7 +145,7 @@ func parseCompactPeers(data []byte) ([]Peer, error) {
 	numPeers := len(data) / 6
 	peers := make([]Peer, numPeers)
 
-	for i := 0; i < numPeers; i++ {
+	for i := range numPeers {
 		offset := i * 6
 
 		// Parse IP (4 bytes)
@@ -164,11 +164,11 @@ func parseCompactPeers(data []byte) ([]Peer, error) {
 }
 
 // parseNonCompactPeers parses the non-compact peer format
-func parseNonCompactPeers(data []interface{}) ([]Peer, error) {
+func parseNonCompactPeers(data []any) ([]Peer, error) {
 	peers := make([]Peer, len(data))
 
 	for i, peerData := range data {
-		peerDict, ok := peerData.(map[string]interface{})
+		peerDict, ok := peerData.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("peer %d is not a dictionary", i)
 		}

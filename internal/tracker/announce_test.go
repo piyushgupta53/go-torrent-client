@@ -53,19 +53,19 @@ func TestParseCompactPeers(t *testing.T) {
 
 func TestParseAnnounceResponse(t *testing.T) {
 	// Create a mock tracker response
-	compactResponse := map[string]interface{}{
+	compactResponse := map[string]any{
 		"interval":   int64(1800),
 		"complete":   int64(5),
 		"incomplete": int64(3),
 		"peers":      string([]byte{127, 0, 0, 1, 0x1A, 0xE1}), // Compact format
 	}
 
-	nonCompactResponse := map[string]interface{}{
+	nonCompactResponse := map[string]any{
 		"interval":   int64(1800),
 		"complete":   int64(5),
 		"incomplete": int64(3),
-		"peers": []interface{}{
-			map[string]interface{}{
+		"peers": []any{
+			map[string]any{
 				"peer id": "01234567890123456789",
 				"ip":      "127.0.0.1",
 				"port":    int64(6881),
@@ -73,13 +73,13 @@ func TestParseAnnounceResponse(t *testing.T) {
 		},
 	}
 
-	errorResponse := map[string]interface{}{
+	errorResponse := map[string]any{
 		"failure reason": "Invalid info_hash",
 	}
 
 	tests := []struct {
 		name     string
-		response map[string]interface{}
+		response map[string]any
 		expected *AnnounceResponse
 		wantErr  bool
 	}{

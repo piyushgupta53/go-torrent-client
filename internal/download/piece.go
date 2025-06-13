@@ -57,7 +57,7 @@ func NewPiece(index int, hash [20]byte, length int) *Piece {
 	// Create blocks
 	blocks := make([]*Block, numBlocks)
 
-	for i := 0; i < numBlocks; i++ {
+	for i := range numBlocks {
 		begin := i * BlockSize
 		blockLen := BlockSize
 
